@@ -12,6 +12,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
@@ -138,21 +140,21 @@ public class OutboundVouch extends AbstractModel{
 //      updatedAt();
 //      return super.update();
 //    }
-/*   
+  
     @PrePersist
     void createdAt() {
       this.dDate = new Date();
-    }*/
+    }
    
-/*    @PreUpdate
+    @PreUpdate
     void updatedAt() {
-      this.updatedAt = new Date();
-    }*/
+      this.dmodifysystime = new Date();
+    }
   
 //此处应重载自己的Save，Delete等方法以实现自己的业务逻辑
     @Override
     public OutboundVouch save() {
- /*   	createdAt();*/
+    	createdAt();
         return super.save();
       }
 

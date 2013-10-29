@@ -1,0 +1,23 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Home page
+GET     /                                       Application.index
+POST    /					Application.create
+POST    /OutboundVouch/save				OutBoundVouchCRUD.createOutVouch
+GET     /OutboundVouch/show/{id}				OutBoundVouchCRUD.readOutVouch
+PUT     /OutboundVouch/update				OutBoundVouchCRUD.updateOutVouch
+DELETE  /OutboundVouch/delete/{id}				OutBoundVouchCRUD.deleteOutVouch
+
+# Import CRUD routes
+*      /VouchCURD              module:crud
+
+# Ignore favicon requests
+GET     /favicon.ico                            404
+
+# Map static resources from the /app/public folder to the /public path
+GET     /public/                                staticDir:public
+
+# Catch all
+*       /{controller}/{action}                  {controller}.{action}
