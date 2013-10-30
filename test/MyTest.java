@@ -11,10 +11,12 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import models.AbstractModel;
 import models.DeliveryVouch;
 import models.DeliveryVouchSub;
 import models.IWorkFlow;
 import models.MockWorkFlow;
+import models.ModelHelper;
 import models.OutboundVouch;
 import models.OutboundVouchSub;
 import models.Person;
@@ -59,7 +61,7 @@ public class MyTest extends UnitTest {
 	}
 
 	@Test
-	// @Ignore
+	@Ignore
 	public void testTrasaction() throws SecurityException,
 			NoSuchFieldException, IllegalArgumentException,
 			IllegalAccessException {
@@ -96,20 +98,15 @@ public class MyTest extends UnitTest {
 		OutboundVouch temOutVouch = outVouch.findById(outVouch.cReceiptMainID);
 		temOutVouch.cCusAddress = "sd";
 		Class clazz = temOutVouch.getClass();
-/*		while (true) {
-			if (clazz.equals(JPABase.class)) {
-				Field field = clazz.getField("willBeSaved");
-				if (Modifier.isTransient(field.getModifiers())) {
-					field.setAccessible(true);
-					Logger.info("willBeSaved setAccessible");
-				}
-				Object o = field.get(temOutVouch);
-				boolean bfield = ((Boolean) o).booleanValue();
-				field.set(temOutVouch, !bfield);
-				break;
-			}
-			clazz = clazz.getSuperclass();
-		}*/
+		/*
+		 * while (true) { if (clazz.equals(JPABase.class)) { Field field =
+		 * clazz.getField("willBeSaved"); if
+		 * (Modifier.isTransient(field.getModifiers())) {
+		 * field.setAccessible(true); Logger.info("willBeSaved setAccessible");
+		 * } Object o = field.get(temOutVouch); boolean bfield = ((Boolean)
+		 * o).booleanValue(); field.set(temOutVouch, !bfield); break; } clazz =
+		 * clazz.getSuperclass(); }
+		 */
 
 		OutboundVouch outVouch1 = new OutboundVouch("00000003", 123, "test")
 				.save();
@@ -232,6 +229,59 @@ public class MyTest extends UnitTest {
 			}
 
 		}
+		Long end = System.currentTimeMillis();
+		System.out.println("Took " + (end - start) + " milliseconds");
+	}
+
+	@Test
+	// @Ignore
+	public void testBatchUpdate() {
+		createBatchData();
+
+		Query query = JPA.em()
+				.createQuery("from OutboundVouch where cDLCode=?");
+		query.setParameter(1, "test");
+		List<AbstractModel> lstAbstractModel = query.getResultList();
+		((OutboundVouch) lstAbstractModel.get(0)).cDLCode = "success";
+		((OutboundVouch) lstAbstractModel.get(5)).cDefine1 = "success";
+		Query query1=JPA.em().createQuery("from DeliveryVouch where cDLCode=?");
+		query1.setParameter(1, "00000003");
+		List<AbstractModel> lstAbstractModel2 = query1.getResultList();
+		((DeliveryVouch)lstAbstractModel2.get(0)).cDefine1="success";
+		((DeliveryVouch)lstAbstractModel2.get(10)).cDefine1="success";
+		lstAbstractModel.addAll(lstAbstractModel2);
+		ModelHelper.updateBatch(lstAbstractModel);
+	}
+
+	private void createBatchData() {
+		EntityManager em = JPA.em();
+		Long start = System.currentTimeMillis();
+		em.setFlushMode(FlushModeType.AUTO);
+		for (int i = 0; i < 100; i++) {
+			System.out.println("s~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + i);
+			OutboundVouch outVouch = new OutboundVouch("00000002", 123, "test");
+			OutboundVouchSub vouchsub = new OutboundVouchSub(outVouch,
+					outVouch.cReceiptMainID, BigInteger.valueOf(1), 1, 123,
+					"TEST", BigDecimal.valueOf(100));
+			outVouch.addRowWithoutSave(vouchsub);
+
+			DeliveryVouch deliveryVouch = new DeliveryVouch("00000003", "0",
+					"01", "001");
+			DeliveryVouchSub deliveryVouchSub = new DeliveryVouchSub(
+					deliveryVouch, deliveryVouch.cReceiptMainID,
+					BigInteger.valueOf(1), "00001", "01",
+					BigDecimal.valueOf(100));
+			deliveryVouch.addRowWithoutSave(deliveryVouchSub);
+			outVouch.saveWithoutFlush();
+			deliveryVouch.saveWithoutFlush();
+			if (i % 1000 == 0) {
+				em.flush();
+				em.clear();
+			}
+
+		}
+		em.flush();// 这里必须flush和clear
+		em.clear();
 		Long end = System.currentTimeMillis();
 		System.out.println("Took " + (end - start) + " milliseconds");
 	}

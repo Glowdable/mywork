@@ -17,6 +17,7 @@ import com.google.gson.annotations.Expose;
 
 
 @Entity
+@org.hibernate.annotations.Entity(dynamicUpdate = true)
 public class OutboundVouchSub extends AbstractModel {
 
 	@Expose
