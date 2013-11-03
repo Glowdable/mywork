@@ -45,19 +45,27 @@ import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.metamodel.Metamodel;
 
+import jobs.MyJob;
+
 //import org.easymock.*;
 public class MyTest extends UnitTest {
 	// 每个方法都是一个过程，都会首先运行这个before方法
 	@Before
 	public void setup() {
-		Fixtures.deleteAll();
+	//	Fixtures.deleteAll();
 		Logger.info("start");
 	}
 
 	@Test
-	@Ignore
-	public void testTras() {
-
+//@Ignore
+	public void testJob() {
+		createBatchData();
+		new MyJob().now();
+		Logger.info("before save");
+    	OutboundVouch out=OutboundVouch.findById((long)1);
+    	out.cCusAddress="fail";
+    	out.save();
+    	Logger.info("before commit");
 	}
 
 	@Test
@@ -234,7 +242,7 @@ public class MyTest extends UnitTest {
 	}
 
 	@Test
-	// @Ignore
+    @Ignore
 	public void testBatchUpdate() {
 		createBatchData();
 
@@ -257,7 +265,7 @@ public class MyTest extends UnitTest {
 		EntityManager em = JPA.em();
 		Long start = System.currentTimeMillis();
 		em.setFlushMode(FlushModeType.AUTO);
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 10; i++) {
 			System.out.println("s~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + i);
 			OutboundVouch outVouch = new OutboundVouch("00000002", 123, "test");
 			OutboundVouchSub vouchsub = new OutboundVouchSub(outVouch,
