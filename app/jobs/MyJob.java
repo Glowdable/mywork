@@ -35,12 +35,28 @@ public class Bootstrap extends Job {
 
 package jobs;
 //Asynchronous Jobs
+import play.Logger;
 import play.jobs.Job;
+import models.AbstractModel;
+import models.DeliveryVouch;
+import models.DeliveryVouchSub;
+import models.IWorkFlow;
+import models.MockWorkFlow;
+import models.ModelHelper;
+import models.OutboundVouch;
+import models.OutboundVouchSub;
+import models.Person;
+import models.StandingCrop;
+import models.Customer;
   
 public class MyJob extends Job<String> {
     
 	//Here the use of String is just for the example, of course a job can return any object type
     public String doJobWithResult() {
+    	Logger.info("doJobWithResult");
+    	OutboundVouch out=OutboundVouch.findById((long)1);
+    	out.cCusAddress="successs";
+    	out.save();
         // execute some application logic here ...
         return "result";
     }
